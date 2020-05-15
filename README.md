@@ -1,5 +1,7 @@
 # ロボット
 
+[![Clojars Project](https://img.shields.io/clojars/v/com.omarpolo/robotto.svg)](https://clojars.org/com.omarpolo/robotto)
+
 `robotto` 「ロボット」 is a clojure library designed to build telegram
 bots.  The idea is to embrace the interceptors and build (possibly)
 complex telegram bot with them.
