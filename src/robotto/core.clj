@@ -26,8 +26,7 @@
   (str url "/" method-name))
 
 (defn- make-request
-  "Returns a channel that yields the response.  Data is optional, and f
-  is filter for data."
+  "Returns a channel that yields the response."
   ([ctx method-name] (make-request ctx method-name {}))
   ([ctx method-name data]
    ;; one slot is needed so we don't deadlock in the catch.
