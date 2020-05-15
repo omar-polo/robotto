@@ -1,4 +1,4 @@
-(ns robotto.core
+(ns com.omarpolo.robotto.core
   (:require [org.httpkit.client :as client]
             [clojure.data.json :as json]
             [clojure.core.async :as async :refer [go chan >! <! >!! <!! put! alts!!]]))
