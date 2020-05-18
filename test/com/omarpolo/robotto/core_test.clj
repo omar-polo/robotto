@@ -1,6 +1,6 @@
-(ns robotto.core-test
+(ns com.omarpolo.robotto.core-test
   (:require [clojure.test :refer :all]
-            [robotto.core :refer :all]))
+            [com.omarpolo.robotto.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."
