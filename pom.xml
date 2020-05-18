@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    
+  <modelVersion>4.0.0</modelVersion>
+    
+  <groupId>com.omarpolo</groupId>
+    
+  <artifactId>robotto</artifactId>
+    
+  <version>0.0.2</version>
+    
+  <name>robotto</name>
+    
+  <dependencies>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>clojure</artifactId>
+      <version>1.10.1</version>
+    </dependency>
+    <dependency>
+      <groupId>http-kit</groupId>
+      <artifactId>http-kit</artifactId>
+      <version>2.4.0-alpha6</version>
+    </dependency>
+    <dependency>
+      <groupId>manifold</groupId>
+      <artifactId>manifold</artifactId>
+      <version>0.1.8</version>
+    </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>data.json</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>core.async</artifactId>
+      <version>1.0.567</version>
+    </dependency>
+    <dependency>
+      <groupId>better-cond</groupId>
+      <artifactId>better-cond</artifactId>
+      <version>2.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>test.check</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+  </dependencies>
+    
+  <build>
+        
+    <sourceDirectory>src</sourceDirectory>
+      
+  </build>
+    
+  <repositories>
+    <repository>
+      <id>clojars</id>
+      <url>https://repo.clojars.org/</url>
+    </repository>
+  </repositories>
+  
+</project>
