@@ -1,5 +1,6 @@
-(ns com.omarpolo.robotto.core
-  (:require [org.httpkit.client :as client]
+(ns omarpolo.robotto.core
+  (:require [com.omarpolo.robotto.interceptor :as interceptor]
+            [org.httpkit.client :as client]
             [clojure.data.json :as json]
             [clojure.core.async :as async :refer [go chan >! <! >!! <!! put! alts!!]]))
 
@@ -44,18 +45,6 @@
                   :error e})))
      ch)))
 
-(defn- run-stack
-  "Given the data and a stack of interceptors, run it"
-  [ctx stack data]
-  ;; TODO: we're implicitly running the :pre task, :post and :error
-  ;; would be nice too.
-  ;; TODO: support async stuff
-  (loop [ctx (assoc ctx
-                    :data data
-                    :next stack)]
-    (when-let [[curr next] (:next ctx)]
-      (recur (curr (assoc ctx :next next))))))
-
 (defn- update-type [update]
   (cond
     (:message update)
@@ -81,47 +70,46 @@
         (= "bot_command" t) (keyword (extract-command entity message))
         :else (recur (rest entities))))))
 
-(defn- stack-for-update [{:keys [error command text msg]} {:keys [message], :as update}]
+(defn- chain-for-update [{:keys [error command text msg]} {:keys [message], :as update}]
   (case (update-type update)
     ::message (if-let [cmd (is-command? message)]
-                {:stack (cmd command)
+                {:chain (cmd command)
                  :data  message}
                 (or (first (for [k '(:text :new_chat_members)
                                  :when (k message)]
-                             {:stack (k msg)
+                             {:chain (k msg)
                               :data message}))
-                    {:stack error
+                    {:chain error
                      :data {:msg "unknown message type"
                             :type ::unknown-message
                             :data message}}))
 
-    ::callback-query {:stack error
+    ::callback-query {:chain error
                       :data {:msg "callbacks queries aren't here yet"}}
 
-    ::unknown {:stack error
+    ::unknown {:chain error
                :data {:msg "unknown update type"
                       :type ::unknown-update
                       :data update}}))
 
 (defn- notify
-  "Notify an error by running the error stack."
+  "Notify an error by running the error chain."
   [{error :error, :as ctx} err]
-  (run-stack ctx error err)
+  (interceptor/run error err)
   ctx)
 
 (defn- consume-updates
   "Runs the action for the given updates, then returns a new context."
   [{error :error, :as ctx} updates]
   (doseq [update updates]
-    (let [[stack data] (stack-for-update ctx update)]
-      (if (empty? stack)
-        (run-stack ctx error {:msg "missing action for update"
-                              :type ::missing-action
-                              :data update})
-        (run-stack ctx stack data))))
+    (let [{:keys [chain data]} (chain-for-update ctx update)]
+      (if (empty? chain)
+        (interceptor/run error {:msg "missing action for update"
+                                :type ::missing-action
+                                :data update})
+        (interceptor/run chain data))))
 
   ;; return a new context with the :update-offset updated
-
   (let [{u :update-offset} ctx]
     (if (empty? updates)
       ctx
@@ -192,16 +180,16 @@
   (assoc ctx :timeout timeout))
 
 (defn on-new-chat-members [ctx cb]
-  (update-in ctx [:msg :new_chat_members] conj cb))
+  (update-in ctx [:msg :new_chat_members] interceptor/chain cb))
 
 (defn on-command [ctx command cb]
-  (update-in ctx [:command command] conj cb))
+  (update-in ctx [:command command] interceptor/chain cb))
 
 (defn on-text [ctx cb]
-  (update-in ctx [:msg :text] conj cb))
+  (update-in ctx [:msg :text] interceptor/chain cb))
 
 (defn on-error [ctx err]
-  (update ctx :error conj err))
+  (update ctx :error interceptor/chain err))
 
 (defn build-ctx
   "Builds the context."
