@@ -146,7 +146,9 @@
   "The default configuration."
   {:token nil
    :base-url "https://api.telegram.org/bot"
-   :timeout 5})
+   :timeout 5
+   :exit-chan nil ;; will be created a new chan during build
+   :default-interceptors []})
 
 (defn new-ctx
   "Build a new context."
@@ -183,4 +185,10 @@
   (-> ctx
       (assoc :req-url (str base-url token))
       (assoc :update-offset 0)
-      (update-whole :me #(<!! (get-me %)))))
+      (update-whole :me #(deref (make-request % {:name 'getMe}
+                                              (fn [{:keys [response error]}]
+                                                (if error
+                                                  (ex-info "cannot /getMe" {:got error})
+                                                  response)))))
+      (assoc ::bus (chan 8))
+      (assoc :exit-chan (chan))))
