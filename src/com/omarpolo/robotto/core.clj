@@ -126,45 +126,19 @@
              (inc (reduce #(max %1 (:update_id %2))
                           u updates))))))
 
-(defn get-updates [{:keys [update-offset timeout], :as ctx}]
-  (let [{:keys [data error]} (<!! (make-request ctx 'getUpdates
-                                                {:offset update-offset
-                                                 :timeout timeout
-                                                 :allowed_updates ["message" "callback_query"]}))]
+(defn get-updates
+  "Retrieve updates from telegram and process them, yielding back a new contex."
+  [{:keys [update-offset timeout], ch ::bus, :as ctx}]
+  (let [{:keys [response error]} @(make-request ctx {:name   'getUpdates
+                                                     :params {:offset          update-offset
+                                                              :timeout         timeout
+                                                              ;; :allowed_updates ["message" "callback_query"]
+                                                              :allowed_updates []}})]
     (cond
-      data  (consume-updates ctx (:result data))
-      error (notify ctx {:msg "error during update fetching"
-                         :type ::transport-error
-                         :data error}))))
-
-
-
-(defn get-me
-  "Return a channel that yields the info about the bot."
-  [ctx]
-  (make-request ctx 'getMe))
-
-(defn get-chat
-  "Returns a channel that yields the chat info."
-  [ctx id]
-  (make-request ctx 'getChat {:chat_id id}))
-
-(defn send-message
-  "Send a `text` message to chat id `cid`."
-  ([ctx cid text] (send-message ctx cid text {}))
-  ([ctx cid text opts]
-   (make-request ctx 'sendMessage (merge opts {:text text
-                                               :chat_id cid
-                                               :parse_mode "HTML"}))))
-
-(defn reply-message
-  "Utility function on top of send-message.  if `reply` is `true`, (by
-  default is `false`) then the message will be a reply to the given
-  message, otherwise it'll simply be sent to the same chat."
-  ([ctx message text] (reply-message ctx message text false))
-  ([ctx {{cid :id} :chat, mid :message_id} text reply]
-   (send-message ctx cid text (if reply
-                                {:reply_to_message_id mid}))))
+      response (consume-updates ctx response)
+      error    (notify ctx {:error {:msg  "error during update fetching"
+                                    :type ::transport-error
+                                    :data error}}))))
 
 
 
