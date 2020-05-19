@@ -1,5 +1,6 @@
-(ns omarpolo.robotto.core
+(ns com.omarpolo.robotto.core
   (:require [com.omarpolo.robotto.interceptor :as interceptor]
+            [com.omarpolo.robotto.effect :as effect]
             [org.httpkit.client :as client]
             [clojure.data.json :as json]
             [clojure.core.async :as async :refer [go chan >! <! >!! <!! put! alts!!]]))
@@ -95,17 +96,26 @@
   [{error :error, :as ctx} err]
   (interceptor/run error err)
   ctx)
+(defn- realize-requests
+  "Run all the requests."
+  [{reqs ::effect/reqs, :as ctx}]
+  (doseq [req reqs]
+    (let [{err :error} @(make-request ctx req)]
+      (when err
+        (println "during" req "got error" err)))))
 
 (defn- consume-updates
   "Runs the action for the given updates, then returns a new context."
   [{error :error, :as ctx} updates]
   (doseq [update updates]
-    (let [{:keys [chain data]} (chain-for-update ctx update)]
-      (if (empty? chain)
-        (interceptor/run error {:msg "missing action for update"
-                                :type ::missing-action
-                                :data update})
-        (interceptor/run chain data))))
+    (let [{chain :chain update-ctx :ctx} (chain-for-update ctx update)]
+      (realize-requests
+       (if (empty? chain)
+         (interceptor/run error (merge {:error {:msg  "missing action for update"
+                                                :type ::missing-action
+                                                :data update}}
+                                       ctx))
+         (interceptor/run chain (merge update-ctx ctx))))))
 
   ;; return a new context with the :update-offset updated
   (let [{u :update-offset} ctx]
