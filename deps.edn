@@ -6,6 +6,8 @@
 
         org.clojure/test.check {:mvn/version "1.0.0"}}
 
+ :extra-paths ["test" "examples"]
+
  :aliases {:depstart {:extra-deps {seancorfield/depstar {:mvn/version "1.0.94"}}
                       :main-opts ["-m" "hf.depstar.jar" "robotto.jar"]}
 

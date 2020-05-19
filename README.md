@@ -18,33 +18,17 @@ change (maybe).
 
 ## Usage
 
-```clojure
-;; a simple echo bot
-(require '[com.omarpolo.robotto/core :as robotto])
-
-(defn start-command [{message :data :as ctx}]
-  (robotto/reply-message ctx message "yo!"))
-
-(defn on-text [{message :data :as ctx}]
-  (robotto/reply-message ctx message (:text message)))
-
-(defn run-bot []
-  (let [ctx (-> (robotto/new-ctx)
-                (robotto/set-token "...")
-                (robotto/on-command :start start-command)
-                (robotto/on-text on-text)
-                (robotto/build-ctx))]
-    (loop [ctx ctx]
-      (recur (robotto/get-updates ctx)))))
-```
+See the example folder, each file is a self-contained bot.
 
 ## wish list
 
 Things that are still missing
 
- - `:post` and `:error` interceptors?
- - add re-frame like effects
+ - async interceptors
  - support more telegram api
+ - default interceptor per-stack with the ::* key?
+ - use clojure.spec
+ - use something like nippy to serialize data in callback query?
 
 ## License
 
