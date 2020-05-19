@@ -27,23 +27,21 @@
   (str url "/" method-name))
 
 (defn- make-request
-  "Returns a channel that yields the response."
-  ([ctx method-name] (make-request ctx method-name {}))
-  ([ctx method-name data]
-   ;; one slot is needed so we don't deadlock in the catch.
-   (let [ch (chan 1)]
-     (try
-       (client/post (method-url ctx method-name)
-                    {:headrs {"Content-Type" "application/json"
-                              "Accept" "application/json"}
-                     :body (to-json data)}
-                    (fn [{:keys [body error]}]
-                      (>!! ch {:data (-> body parse-json :data :result)
-                               :error error})))
-       (catch Throwable e
-         (>!! ch {:data nil
-                  :error e})))
-     ch)))
+  ([ctx req] (make-request ctx req identity))
+  ([ctx {:keys [name params]} callback]
+   (try
+     (client/post (method-url ctx name)
+                  {:headers {"Content-Type" "application/json"
+                             "Accept" "application/json"}
+                   :body (to-json params)}
+                  (fn [{:keys [body error] :as resp}]
+                    (let [body (parse-json body)]
+                      (if (:ok body)
+                        (callback {:response (:result body)})
+                        (callback {:error {:body (or error body)
+                                           ::http-response resp}})))))
+     (catch Throwable e
+       (callback {:error e})))))
 
 (defn- update-type [update]
   (cond
