@@ -69,33 +69,34 @@
         (= "bot_command" t) (keyword (extract-command entity message))
         :else (recur (rest entities))))))
 
-(defn- chain-for-update [{:keys [error command text msg]} {:keys [message], :as update}]
+(defn- chain-for-update [{{:keys [error command text msg callback-query]} ::chain}
+                         {:keys [message callback_query], :as update}]
   (case (update-type update)
     ::message (if-let [cmd (is-command? message)]
                 {:chain (cmd command)
-                 :data  message}
-                (or (first (for [k '(:text :new_chat_members)
+                 :ctx   {:message message}}
+                (or (first (for [k     '(:text :new_chat_members)
                                  :when (k message)]
                              {:chain (k msg)
-                              :data message}))
+                              :ctx   {:message message}}))
                     {:chain error
-                     :data {:msg "unknown message type"
-                            :type ::unknown-message
-                            :data message}}))
+                     :ctx   {:error {:msg     "unknown message type"
+                                     :type    ::unknown-message
+                                     :message message}}}))
 
-    ::callback-query {:chain error
-                      :data {:msg "callbacks queries aren't here yet"}}
+    ::callback-query {:chain callback-query
+                      :ctx   {:callback-query callback_query}}
 
     ::unknown {:chain error
-               :data {:msg "unknown update type"
-                      :type ::unknown-update
-                      :data update}}))
+               :ctx   {:error {:msg  "unknown update type"
+                               :type ::unknown-update
+                               :data update}}}))
 
 (defn- notify
   "Notify an error by running the error chain."
-  [{error :error, :as ctx} err]
-  (interceptor/run error err)
-  ctx)
+  [{{error :error} ::chain :as ctx} err]
+  (interceptor/run error (merge ctx err)))
+
 (defn- realize-requests
   "Run all the requests."
   [{reqs ::effect/reqs, :as ctx}]
@@ -187,17 +188,20 @@
 (defn set-timeout [ctx timeout]
   (assoc ctx :timeout timeout))
 
-(defn on-new-chat-members [ctx cb]
-  (update-in ctx [:msg :new_chat_members] interceptor/chain cb))
+(defn on-new-chat-members [ctx i]
+  (update-in ctx [::chain :msg :new_chat_members] interceptor/chain i))
 
-(defn on-command [ctx command cb]
-  (update-in ctx [:command command] interceptor/chain cb))
+(defn on-command [ctx command i]
+  (update-in ctx [::chain :command command] interceptor/chain i))
 
-(defn on-text [ctx cb]
-  (update-in ctx [:msg :text] interceptor/chain cb))
+(defn on-text [ctx i]
+  (update-in ctx [::chain :msg :text] interceptor/chain i))
 
-(defn on-error [ctx err]
-  (update ctx :error interceptor/chain err))
+(defn on-error [ctx i]
+  (update-in ctx [::chain :error] interceptor/chain i))
+
+(defn on-callback-query [ctx i]
+  (update-in ctx [::chain :callback-query] interceptor/chain i))
 
 (defn build-ctx
   "Builds the context."
