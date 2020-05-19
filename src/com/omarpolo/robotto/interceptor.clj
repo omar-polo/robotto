@@ -25,7 +25,7 @@
   ([a b]
    (let [a (normalize a)
          b (normalize b)]
-     (into b (reverse a))))
+     (into a (reverse b))))
   ([a b & cs]
    (apply chain (chain a b) cs)))
 
