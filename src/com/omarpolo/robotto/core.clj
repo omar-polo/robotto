@@ -50,6 +50,8 @@
        (callback {:error e})))))
 
 (defn- update-type [update]
+  ;; TODO: to prevent this cond to grow without control, what about
+  ;; replace it with a for and a lookup map?
   (cond
     (:message update)
     ::message
