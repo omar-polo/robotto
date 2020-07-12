@@ -3,7 +3,8 @@
             [com.omarpolo.robotto.effect :as effect]
             [org.httpkit.client :as client]
             [clojure.data.json :as json]
-            [clojure.core.async :as async :refer [go chan >! <! >!! <!! put! alts!!]]))
+            [clojure.core.async :as async :refer [go chan >! <! >!! <!! put! alts!!]]
+            [clojure.tools.logging :as log]))
 
 (defn- update-whole
   "Like update, but pass the whole map insteaf of only `(k m)` to the
@@ -16,7 +17,7 @@
     (if str
       (json/read-str str :key-fn keyword))
     (catch Throwable e
-      (println "cannot parse" str "due to" e)
+      (log/error e "cannot parse" str)
       nil)))
 
 (defn- to-json [x]
@@ -31,6 +32,7 @@
   ([ctx req] (make-request ctx req identity))
   ([ctx {:keys [name params]} callback]
    (try
+     (log/debug "making request" name "with params" params)
      (client/post (method-url ctx name)
                   {:headers {"Content-Type" "application/json"
                              "Accept" "application/json"}
@@ -39,8 +41,9 @@
                     (let [body (parse-json body)]
                       (if (:ok body)
                         (callback {:response (:result body)})
-                        (callback {:error {:body (or error body)
-                                           ::http-response resp}})))))
+                        (do (log/warn "request" name "with param" params "failed with" error ". body is" body)
+                            (callback {:error {:body (or error body)
+                                               ::http-response resp}}))))))
      (catch Throwable e
        (callback {:error e})))))
 
@@ -103,19 +106,21 @@
   (doseq [req reqs]
     (let [{err :error} @(make-request ctx req)]
       (when err
-        (println "during" req "got error" err)))))
+        (log/error {:got err :during req})))))
 
 (defn- consume-updates
   "Runs the action for the given updates, then returns a new context."
   [{error :error, :as ctx} updates]
   (doseq [update updates]
+    (log/debug "processing update" update)
     (let [{chain :chain update-ctx :ctx} (chain-for-update ctx update)]
       (realize-requests
        (if (empty? chain)
-         (interceptor/run error (merge {:error {:msg  "missing action for update"
-                                                :type ::missing-action
-                                                :data update}}
-                                       ctx))
+         (do (log/warn "missing chain for" update)
+             (interceptor/run error (merge {:error {:msg  "missing action for update"
+                                                    :type ::missing-action
+                                                    :data update}}
+                                           ctx)))
          (interceptor/run chain (merge update-ctx ctx))))))
 
   ;; return a new context with the :update-offset updated
