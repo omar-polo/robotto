@@ -65,6 +65,9 @@
     (:edited_channel_post update)
     ::edited-channel-post
 
+    (:inline_query update)
+    ::inline-query
+
     :else
     ::unknown))
 
@@ -83,10 +86,12 @@
         :else (recur (rest entities))))))
 
 (defn- chain-for-update [{{:keys [error command text msg callback-query
-                                  channel-post edited-channel-post]} ::chain}
+                                  channel-post edited-channel-post
+                                  inline-query]} ::chain}
 
                          {:keys [message callback_query channel_post
-                                 edited_channel_post], :as update}]
+                                 edited_channel_post inline_query]
+                          :as   update}]
   (case (update-type update)
     ::message (if-let [cmd (is-command? message)]
                 {:chain (cmd command)
@@ -104,10 +109,13 @@
                       :ctx   {:callback-query callback_query}}
 
     ::channel-post {:chain channel-post
-                    :ctx {:channel-post channel_post}}
+                    :ctx   {:channel-post channel_post}}
 
     ::edited-channel-post {:chain edited-channel-post
-                           :ctx {:edited-channel-post edited_channel_post}}
+                           :ctx   {:edited-channel-post edited_channel_post}}
+
+    ::inline-query {:chain inline-query
+                    :ctx   {:inline-query inline_query}}
 
     ::unknown {:chain error
                :ctx   {:error {:msg  "unknown update type"
@@ -196,6 +204,9 @@
 
 (defn on-edited-channel-post [ctx i]
   (update-in ctx [::chain :edited-channel-post] interceptor/chain i))
+
+(defn on-inline-query [ctx i]
+  (update-in ctx [::chain :inline-query] interceptor/chain i))
 
 (defn on-command [ctx command i]
   (update-in ctx [::chain :command command] interceptor/chain i))

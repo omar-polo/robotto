@@ -49,3 +49,19 @@
                                      url         (assoc :url url)
                                      cache-time  (assoc :cache_time cache-time))}))
 
+(defn answer-inline-query
+  "Reply to a inline query.  Pass either the whole inline-query map with
+  `:inline-query` or only the id with `:inline-query-id`.  The only
+  required parameters are `:results` and either `:inline-query` or
+  `:inline-query-id`."
+  [ctx {{iqid :id} :inline-query
+        id         :inline-query-id
+        :keys      [results cache-time is-personal? next-offset switch-pm-text switch-pm-parameter]}]
+  (queue-http-request ctx {:name   'answerInlineQuery
+                           :params {:inline_query_id     (or iqid id)
+                                    :results             results
+                                    :cache_time          cache-time
+                                    :is_personal         is-personal?
+                                    :next_offset         next-offset
+                                    :switch_pm_text      switch-pm-text
+                                    :switch_pm_parameter switch-pm-parameter}}))
