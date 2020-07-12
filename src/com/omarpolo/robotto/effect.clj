@@ -12,7 +12,7 @@
                            :params (merge opts
                                           (cond-> {:text text
                                                    :chat_id chat-id}
-                                            parse-mode      (assoc :parse-mode parse-mode)
+                                            parse-mode      (assoc :parse_mode parse-mode)
                                             inline-keyboard (assoc-in [:reply_markup :inline_keyboard] inline-keyboard)))}))
 
 (defn reply-message
