@@ -18,10 +18,11 @@
 (defn reply-message
   "Send a message in the same chat as the given message.  If `:reply-to`
   is true, the message sent will be a reply."
-  [ctx {{{cid :id} :chat, mid :message_id} :message, :keys [text reply parse-mode opts]}]
-  (send-message ctx {:chat-id cid, :text text, :parse-mode parse-mode
-                     :opts    (cond-> opts
-                                reply (assoc :reply_to_message_id mid))}))
+  [ctx {{{cid :id} :chat, mid :message_id, :keys [reply? opts]} :message, :as m}]
+  (send-message ctx (merge m
+                           {:chat-id cid
+                            :opts    (cond-> opts
+                                       reply? (assoc :reply_to_message_id mid))})))
 
 (defn delete-message
   "Delete the message with the given id in the given chat.`"
