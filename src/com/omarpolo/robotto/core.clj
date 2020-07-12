@@ -55,6 +55,12 @@
     (:callback_query update)
     ::callback-query
 
+    (:channel_post update)
+    ::channel-post
+
+    (:edited_channel_post update)
+    ::edited-channel-post
+
     :else
     ::unknown))
 
@@ -72,8 +78,11 @@
         (= "bot_command" t) (keyword (extract-command entity message))
         :else (recur (rest entities))))))
 
-(defn- chain-for-update [{{:keys [error command text msg callback-query]} ::chain}
-                         {:keys [message callback_query], :as update}]
+(defn- chain-for-update [{{:keys [error command text msg callback-query
+                                  channel-post edited-channel-post]} ::chain}
+
+                         {:keys [message callback_query channel_post
+                                 edited_channel_post], :as update}]
   (case (update-type update)
     ::message (if-let [cmd (is-command? message)]
                 {:chain (cmd command)
@@ -89,6 +98,12 @@
 
     ::callback-query {:chain callback-query
                       :ctx   {:callback-query callback_query}}
+
+    ::channel-post {:chain channel-post
+                    :ctx {:channel-post channel_post}}
+
+    ::edited-channel-post {:chain edited-channel-post
+                           :ctx {:edited-channel-post edited_channel_post}}
 
     ::unknown {:chain error
                :ctx   {:error {:msg  "unknown update type"
@@ -171,6 +186,12 @@
 
 (defn on-new-chat-members [ctx i]
   (update-in ctx [::chain :msg :new_chat_members] interceptor/chain i))
+
+(defn on-channel-post [ctx i]
+  (update-in ctx [::chain :channel-post] interceptor/chain i))
+
+(defn on-edited-channel-post [ctx i]
+  (update-in ctx [::chain :edited-channel-post] interceptor/chain i))
 
 (defn on-command [ctx command i]
   (update-in ctx [::chain :command command] interceptor/chain i))
