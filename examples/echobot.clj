@@ -16,7 +16,7 @@
 (defn echo [{msg :message, :as ctx}]
   (fx/reply-message ctx {:message msg
                          :text    (:text msg)
-                         :reply   true}))
+                         :reply?  true}))
 
 (defn callback [{cb :callback-query, :as ctx}]
   (fx/answer-callback-query ctx {:callback-query cb

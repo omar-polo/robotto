@@ -16,7 +16,7 @@
                                             inline-keyboard (assoc-in [:reply_markup :inline_keyboard] inline-keyboard)))}))
 
 (defn reply-message
-  "Send a message in the same chat as the given message.  If `:reply-to`
+  "Send a message in the same chat as the given message.  If `:reply?`
   is true, the message sent will be a reply."
   [ctx {{{cid :id} :chat, mid :message_id, :keys [reply? opts]} :message, :as m}]
   (send-message ctx (merge m
