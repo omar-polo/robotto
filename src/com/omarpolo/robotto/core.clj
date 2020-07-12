@@ -28,7 +28,7 @@
 (defn- method-url [{url :req-url} method-name]
   (str url "/" method-name))
 
-(defn- make-request
+(defn make-request
   ([ctx req] (make-request ctx req identity))
   ([ctx {:keys [name params]} callback]
    (try
