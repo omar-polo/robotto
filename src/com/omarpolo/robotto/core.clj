@@ -1,10 +1,12 @@
 (ns com.omarpolo.robotto.core
-  (:require [com.omarpolo.robotto.interceptor :as interceptor]
-            [com.omarpolo.robotto.effect :as effect]
-            [org.httpkit.client :as client]
-            [clojure.data.json :as json]
-            [clojure.core.async :as async :refer [go chan >! <! >!! <!! put! alts!!]]
-            [clojure.tools.logging :as log]))
+  (:require
+   [clojure.core.async :as async :refer [go chan >! <! >!! <!! put! alts!!]]
+   [clojure.data.json :as json]
+   [clojure.tools.logging :as log]
+   [com.omarpolo.robotto.effect :as effect]
+   [com.omarpolo.robotto.interceptor :as interceptor]
+   [com.omarpolo.robotto.misc :as m]
+   [org.httpkit.client :as client]))
 
 (defn- update-whole
   "Like update, but pass the whole map insteaf of only `(k m)` to the
@@ -36,7 +38,7 @@
      (client/post (method-url ctx name)
                   {:headers {"Content-Type" "application/json"
                              "Accept" "application/json"}
-                   :body (to-json params)}
+                   :body (to-json (m/deep-remove-nils params))}
                   (fn [{:keys [body error] :as resp}]
                     (let [body (parse-json body)]
                       (if (:ok body)
