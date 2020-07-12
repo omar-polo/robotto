@@ -34,5 +34,4 @@ Things that are still missing
 
 Copyright © 2020 Omar Polo <op@omarpolo.com>
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the ISC License.
