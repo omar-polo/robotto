@@ -1,5 +1,7 @@
 (ns uppercasebot
-  "This is an example of a bot that provides answers to inline queries."
+  "This is an example of a bot that provides answers to inline queries.
+  Don't forget to enable the inline mode in your bot settings via
+  BotFather!"
   (:require [com.omarpolo.robotto.core :as robotto]
             [com.omarpolo.robotto.effect :as fx]
             [com.omarpolo.robotto.inline-query-result :as iq])
