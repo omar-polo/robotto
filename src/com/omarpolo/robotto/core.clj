@@ -47,7 +47,8 @@
                             (callback {:error {:body (or error body)
                                                ::http-response resp}}))))))
      (catch Throwable e
-       (callback {:error e})))))
+       (callback {:error e})
+       (-> (promise) (deliver nil))))))
 
 (defn- update-type [update]
   ;; TODO: to prevent this cond to grow without control, what about
