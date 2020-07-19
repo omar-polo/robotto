@@ -126,7 +126,8 @@
 (defn- notify
   "Notify an error by running the error chain."
   [{{error :error} ::chain :as ctx} err]
-  (interceptor/run error (merge ctx err)))
+  (interceptor/run error (merge ctx err))
+  ctx)
 
 (defn- realize-requests
   "Run all the requests."
