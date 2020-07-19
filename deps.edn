@@ -3,17 +3,20 @@
         org.clojure/data.json     {:mvn/version "1.0.0"}
         org.clojure/core.async    {:mvn/version "1.0.567"}
         org.clojure/tools.logging {:mvn/version "1.1.0"}
-        better-cond               {:mvn/version "2.1.0"}
+        better-cond               {:mvn/version "2.1.0"}}
 
-        org.clojure/test.check {:mvn/version "1.0.0"}}
+ :aliases {:with-examples {:extra-paths ["examples"]}
 
- :aliases {:depstar {:extra-deps {seancorfield/depstar {:mvn/version "1.0.94"}}
+           :test {:extra-paths ["test"]
+                  :extra-deps  {org.clojure/test.check {:mvn/version "1.0.0"}}}
+
+           :depstar {:extra-deps {seancorfield/depstar {:mvn/version "1.0.94"}}
                      :main-opts  ["-m" "hf.depstar.jar" "robotto.jar"]}
 
            :install {:extra-deps {deps-deploy {:mvn/version "RELEASE"}}
                      :main-opts  ["-m" "deps-deploy.deps-deploy" "install"
-                                 "robotto.jar" "true"]}
+                                  "robotto.jar" "true"]}
 
            :deploy {:extra-deps {deps-deploy {:mvn/version "RELEASE"}}
                     :main-opts  ["-m" "deps-deploy.deps-deploy" "deploy"
-                                "robotto.jar" "true"]}}}
+                                 "robotto.jar" "true"]}}}
