@@ -31,7 +31,7 @@
                 (robotto/on-text echo)
                 (robotto/build-ctx))]
     (loop [ctx ctx]
-      (recur (robotto/get-updates ctx)))))
+      (recur (robotto/process-updates ctx)))))
 
 (comment
   (-main)

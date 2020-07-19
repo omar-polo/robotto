@@ -160,7 +160,7 @@
              (inc (reduce #(max %1 (:update_id %2))
                           u updates))))))
 
-(defn get-updates
+(defn process-updates
   "Retrieve updates from telegram and process them, yielding back a new contex."
   [{:keys [update-offset timeout], ch ::bus, :as ctx}]
   (let [{:keys [response error]} @(make-request ctx {:name   'getUpdates
@@ -173,6 +173,9 @@
       error    (notify ctx {:error {:msg  "error during update fetching"
                                     :type ::transport-error
                                     :data error}}))))
+
+(defn ^:deprecated get-updates [ctx]
+  (process-updates ctx))
 
 
 

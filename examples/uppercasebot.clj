@@ -29,7 +29,7 @@
                 (robotto/on-inline-query handle-inline-query)
                 (robotto/build-ctx))]
     (loop [ctx ctx]
-      (recur (robotto/get-updates ctx)))))
+      (recur (robotto/process-updates ctx)))))
 
 (comment
   (-main)
