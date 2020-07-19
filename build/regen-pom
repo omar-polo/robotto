@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -e
+
+if [ ! -f "pom.xml" ]; then
+	printf 'cannot find pom.xml in $PWD\n' >&2
+	exit 1
+fi
+
+clojure -Spom
+sed -i.bak '/^[[:space:]]*$/d' pom.xml
+rm pom.xml.bak

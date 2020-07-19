@@ -1,31 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-        
-  
-  
   <modelVersion>4.0.0</modelVersion>
-        
-  
-  
   <groupId>com.omarpolo</groupId>
-        
-  
-  
   <artifactId>robotto</artifactId>
-        
-  
-  
   <version>0.1.0-SNAPSHOT</version>
-        
-  
-  
   <name>robotto</name>
-      
-  
+  <description>「ロボット」 is a clojure library to build telegram bots.</description>
   <url>https://git.omarpolo.com/robotto</url>
-        
-  
-  
+  <licenses>
+    <license>
+      <name>ISC</name>
+      <url>https://opensource.org/licenses/ISC</url>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:git:https://git.omarpolo.com/robotto</connection>
+    <developerConnection>scm:git:ssh://git@omarpolo.com/robotto</developerConnection>
+    <tag>HEAD</tag>
+    <url>https://git.omarpolo.com/robotto</url>
+  </scm>
   <dependencies>
     <dependency>
       <groupId>org.clojure</groupId>
@@ -62,34 +55,14 @@
       <artifactId>better-cond</artifactId>
       <version>2.1.0</version>
     </dependency>
-    <dependency>
-      <groupId>org.clojure</groupId>
-      <artifactId>test.check</artifactId>
-      <version>1.0.0</version>
-    </dependency>
   </dependencies>
-        
-  
-  
   <build>
-                
-    
-    
     <sourceDirectory>src</sourceDirectory>
-              
-  
-  
   </build>
-        
-  
-  
   <repositories>
     <repository>
       <id>clojars</id>
       <url>https://repo.clojars.org/</url>
     </repository>
   </repositories>
-      
-
-
 </project>
