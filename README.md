@@ -16,6 +16,16 @@ by its author in production, it lacks TONS of functionalities.  The
 overall design is here to stay, but the interface are subject to
 change (maybe).
 
+### Install
+
+leiningen/boot:
+
+	[com.omarpolo/robotto "0.1.0-SNAPSHOT"]
+
+Clojure CLI/`deps.edn`
+
+	com.omarpolo/robotto {:mvn/version "0.1.0-SNAPSHOT"}
+
 ## Usage
 
 See the example folder, each file is a self-contained bot.
